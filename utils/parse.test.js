@@ -3,9 +3,16 @@ const { parseAction, parseIssueNumbers } = require("./parse");
 describe("parseAction fuzz testing", () => {
   const testCases = [
     ["@celbot action", "celbot", "action"],
+    [
+      `
+    @celbot action`,
+      "celbot",
+      null,
+    ],
     ["@celbot action", "", null],
     ["@celbot action", "asdf", null],
     ["@celbot", "celbot", null],
+    ["@celbot       ", "celbot", null],
     ["action @celbot", "celbot", null],
     ["action", "celbot", null],
     ["@celbot action asdf", "celbot", "action"],

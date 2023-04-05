@@ -1,9 +1,17 @@
+// parseAction parses the action from the comment. It returns null if any of the
+// following are true:
+//  - The bot name is empty
+//  - The comment is empty
+//  - The bot name is not mentioned in the comment
+//  - The comment does not start with the bot name
+//  - The comment does not contain an action
 exports.parseAction = function (comment, botName) {
   if (botName === "") return null;
+  if (comment === "") return null;
+  if (!comment.includes(`@${botName}`)) return null;
   if (!comment.startsWith(`@${botName}`)) return null;
   if (comment.split(" ").length < 2) return null;
   if (comment.split(" ")[1].trim() === "") return null;
-  if (comment === "") return null;
 
   // Remove the bot name from the comment
   var action = comment.split(`@${botName}`)[1].trim();

@@ -1,6 +1,7 @@
-const parseAction = require("./parse");
+const { parseAction, parseIssueNumbers } = require("./parse");
+
 describe("parseAction fuzz testing", () => {
-  const table = [
+  const testCases = [
     ["@celbot action", "celbot", "action"],
     ["@celbot action", "", null],
     ["@celbot action", "asdf", null],
@@ -10,10 +11,49 @@ describe("parseAction fuzz testing", () => {
     ["@celbot action asdf", "celbot", "action"],
     ["@celbot action more and more text", "celbot", "action"],
   ];
-  test.each(table)(
+  test.each(testCases)(
     "parseAction(%s, %s) returns %s",
     (comment, botName, expected) => {
-      expect(parseAction(comment, botName)).toBe(expected);
+      expect(parseAction(comment, botName)).toEqual(expected);
     }
   );
+});
+
+describe("parseIssueNumbers fuzz testing", () => {
+  const testCases = [
+    [
+      `- [ ] #42
+  - [ ] some text #43
+  - [ ] #44 some text
+  `,
+      [42, 43, 44],
+    ],
+    [
+      `
+  - [ ] #42
+- [ ] some text #43
+  - [ ] #44 some text
+  `,
+      [42, 43, 44],
+    ],
+    [
+      `
+  - [ ] #42
+  - [ ] some text #43
+  - [x] #44 some text
+  `,
+      [42, 43],
+    ],
+    ["- [ ] #42", [42]],
+    [" - [ ] #42", [42]],
+    ["#42", []],
+    ["# 42", []],
+    ["Some text #42", []],
+    ["#42 some text", []],
+    ["only some text", []],
+    ["", []],
+  ];
+  test.each(testCases)("parseIssueNumbers(%s) returns %s", (body, expected) => {
+    expect(parseIssueNumbers(body)).toEqual(expected);
+  });
 });

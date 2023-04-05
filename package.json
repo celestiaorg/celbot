@@ -13,9 +13,12 @@
   ],
   "scripts": {
     "start": "probot run ./index.js",
+    "lint": "prettier --check .",
+    "fmt": "prettier --write .",
     "test": "jest"
   },
   "dependencies": {
+    "prettier": "^2.8.7",
     "probot": "^12.2.4"
   },
   "devDependencies": {

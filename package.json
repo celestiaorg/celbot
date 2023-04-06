@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "start": "probot run ./index.js",
+    "dev": "nodemon --exec 'probot run' ./index.js",
     "lint": "prettier --check .",
     "fmt": "prettier --write .",
     "test": "jest"
@@ -24,6 +25,7 @@
   "devDependencies": {
     "jest": "^29.0.0",
     "nock": "^13.0.5",
+    "nodemon": "^2.0.22",
     "smee-client": "^1.2.2"
   },
   "engines": {

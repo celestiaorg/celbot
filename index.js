@@ -9,7 +9,7 @@ const { parseAction, parseIssueNumbers } = require("./utils/parse");
 const { printJSON } = require("./utils/utils");
 
 // Queries
-// const { getIssueProjects } = require("./graphql/projects");
+const { getIssueProjects } = require("./graphql/projects");
 
 // Define actions
 const syncEpic = "syncEpic";
@@ -38,7 +38,6 @@ module.exports = (app) => {
 Received issue comment event
 
 `);
-    // app.log.info(`context: ${printJSON(context)}`);
 
     // Get the issue comment
     const comment = context.payload.comment.body;
@@ -86,13 +85,14 @@ async function handleSyncEpic(context) {
   const milestone = issue.data.milestone ? issue.data.milestone.number : null;
 
   // Get projects related to the repository
-  // const projects = await getIssueProjects(context, issue.data.number);
+  const projects = await getIssueProjects(context, issue.data.id);
 
   // Extract the issue numbers from the task list
   const issueNumbers = parseIssueNumbers(issue.data.body);
   console.log(`handleSyncEpic extracted the following information:
   labels: ${labels}
   milestone: ${milestone}
+  projects: ${projects}
   issueNumbers: ${issueNumbers}
   `);
   if (issueNumbers) {
@@ -101,10 +101,6 @@ async function handleSyncEpic(context) {
       await applyAttributes(context, issueNumber, labels, milestone);
     }
   }
-}
-
-function issueLabels(issue) {
-  return issue.data.labels.map((label) => label.name);
 }
 
 async function applyAttributes(context, issueId, labels, milestone) {

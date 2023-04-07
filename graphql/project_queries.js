@@ -35,11 +35,9 @@ query ($owner: String!, $projectNumber: Int!) {
 	organization(login: $owner) {
 		projectV2(number: $projectNumber) {
 			items(last: 100) {
-				edges {
-					node {
-						id
-						type
-					}
+				nodes {
+					id
+					type
 				}
 			}
 		}

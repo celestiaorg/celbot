@@ -27,9 +27,9 @@ exports.getIssueProjects = async function (context, issueID) {
   return issueProjects;
 };
 
-// fetchOrgProjects fetches the projects for the given organization based on the
-// provided context.
-exports.fetchOrgProjects = async function (context) {
+// getOrgProjects queries the projects for the given organization based on the
+// provided context from the Github graphql api.
+exports.getOrgProjects = async function (context) {
   const owner = context.repo().owner;
   try {
     const result = await graphqlQuery(context, orgProjectsV2QueryString, {
@@ -42,15 +42,16 @@ exports.fetchOrgProjects = async function (context) {
     return [];
   }
 };
-// fetchRepoProjects fetches the projects for the given repository based on the
-// provided context.
-exports.fetchRepoProjects = async function (context) {
+
+// getRepoProjects queries the projects for the given repository based on the
+// provided context from the Github graphql api.
+exports.getRepoProjects = async function (context) {
   const owner = context.repo().owner;
   const repo = context.repo().repo;
   try {
     const result = await graphqlQuery(context, repoProjectsV2QueryString, {
       owner,
-      repo,
+      name: repo,
     });
 
     return result.repository.projectsV2.nodes;
@@ -77,18 +78,18 @@ async function isIssueInProject(context, issueID, projectNumber) {
 }
 
 // TODO: need pagination since projects can have more than 100 items
-async function getProjectItems(context, projectNumber) {
+exports.getProjectItems = async function (context, projectNumber) {
   const owner = context.repo().owner;
 
   try {
-    const result = await graphqlQuery(orgProjectV2ItemsQueryString, {
+    const result = await graphqlQuery(context, orgProjectV2ItemsQueryString, {
       owner,
-      projectNumber,
+      number: projectNumber,
     });
 
-    return result.organization.projectV2.items.edges;
+    return result.organization.projectV2.items.nodes;
   } catch (error) {
     console.error("Error fetching views:", error);
     return [];
   }
-}
+};

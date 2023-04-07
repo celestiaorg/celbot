@@ -11,7 +11,7 @@ const {
   orgProjectV2ItemsQueryString,
   repoProjectsV2QueryString,
 } = require("./project_queries");
-const { describeWithErrorsLogSurpressed } = require("../test/test");
+const { describeWithErrorsLogSurpressed } = require("../test/utils");
 
 // Common test data
 //

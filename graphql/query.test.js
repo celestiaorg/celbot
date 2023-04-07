@@ -1,5 +1,5 @@
 const { isValid, graphqlQuery } = require("./query");
-const { describeWithErrorsLogSurpressed } = require("../test/test");
+const { describeWithErrorsLogSurpressed } = require("../test/utils");
 
 const validQuery = `
 {

@@ -1,4 +1,12 @@
 const { printJSON } = require("../utils/utils");
+const { graphqlQuery } = require("./query");
+
+// Import Queries
+const {
+  orgProjectsV2QueryString,
+  orgProjectV2ItemsQueryString,
+  repoProjectsV2QueryString,
+} = require("./project_queries");
 
 exports.getIssueProjects = async function (context, issueID) {
   const repoProjects = await fetchRepoProjects(context);
@@ -21,57 +29,26 @@ exports.getIssueProjects = async function (context, issueID) {
 
 // fetchOrgProjects fetches the projects for the given organization based on the
 // provided context.
-async function fetchOrgProjects(context) {
+exports.fetchOrgProjects = async function (context) {
   const owner = context.repo().owner;
-
-  const query = `
-	  query ($owner: String!) {
-	    organization(login: $owner) {
-	      projectsV2(first: 100) {
-		nodes {
-		  id
-		  title
-		  closed
-		  number
-		}
-	      }
-	    }
-	  }
-	`;
-
   try {
-    const result = await context.octokit.graphql(query, {
+    const result = await graphqlQuery(context, orgProjectsV2QueryString, {
       owner,
     });
 
     return result.organization.projectsV2.nodes;
   } catch (error) {
     console.error("Error fetching projects:", error);
+    return [];
   }
-}
+};
 // fetchRepoProjects fetches the projects for the given repository based on the
 // provided context.
-async function fetchRepoProjects(context) {
+exports.fetchRepoProjects = async function (context) {
   const owner = context.repo().owner;
   const repo = context.repo().repo;
-
-  const query = `
-	  query ($owner: String!, $repo: String!) {
-	    repository(owner: $owner, name: $repo) {
-	      projectsV2(first: 100) {
-		nodes {
-		  id
-		  title
-		  closed
-		  number
-		}
-	      }
-	    }
-	  }
-	`;
-
   try {
-    const result = await context.octokit.graphql(query, {
+    const result = await graphqlQuery(context, repoProjectsV2QueryString, {
       owner,
       repo,
     });
@@ -79,8 +56,9 @@ async function fetchRepoProjects(context) {
     return result.repository.projectsV2.nodes;
   } catch (error) {
     console.error("Error fetching projects:", error);
+    return [];
   }
-}
+};
 
 async function isIssueInProject(context, issueID, projectNumber) {
   const items = await getProjectItems(context, projectNumber);
@@ -88,7 +66,7 @@ async function isIssueInProject(context, issueID, projectNumber) {
   // console.log(
   //   `isIssueInProject found ${items.length} items for the project ${projectNumber}.`
   // );
-  // console.log(`views ${printJSON(items)}`);
+  console.log(`views ${printJSON(items)}`);
 
   for (const item of items) {
     if (item.node.type !== "ISSUE") continue;
@@ -97,28 +75,13 @@ async function isIssueInProject(context, issueID, projectNumber) {
 
   return false;
 }
+
+// TODO: need pagination since projects can have more than 100 items
 async function getProjectItems(context, projectNumber) {
   const owner = context.repo().owner;
 
-  const query = `
-	  query ($owner: String!, $projectNumber: Int!) {
-	    organization(login: $owner) {
-	      projectV2(number: $projectNumber) {
-          items(last: 100) {
-            edges {
-              node {
-                id
-                type
-              }
-            }
-          }
-	      }
-	    }
-	  }
-	`;
-
   try {
-    const result = await context.octokit.graphql(query, {
+    const result = await graphqlQuery(orgProjectV2ItemsQueryString, {
       owner,
       projectNumber,
     });
@@ -126,5 +89,6 @@ async function getProjectItems(context, projectNumber) {
     return result.organization.projectV2.items.edges;
   } catch (error) {
     console.error("Error fetching views:", error);
+    return [];
   }
 }

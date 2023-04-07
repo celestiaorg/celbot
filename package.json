@@ -12,16 +12,19 @@
     "probot-app"
   ],
   "scripts": {
-    "start": "probot run ./index.js",
-    "dev": "nodemon --exec 'probot run' ./index.js",
-    "mock": "probot receive -e issue_comment -p test/fixtures/live/issue_comment.created.json index.js",
     "lint": "prettier --check .",
     "fmt": "prettier --write .",
-    "test": "jest"
+    "test": "npm run lint && jest",
+    "start": "npm run test && probot run ./index.js",
+    "dev": "npm run test && nodemon --exec 'probot run' ./index.js",
+    "mock": "npm run test && probot receive -e issue_comment -p test/fixtures/live/issue_comment.created.json index.js",
+    "introspection-data": "node graphql/introspection.js"
   },
   "dependencies": {
     "@octokit/graphql": "^5.0.5",
     "@octokit/rest": "^19.0.7",
+    "dotenv": "^16.0.3",
+    "graphql": "^16.6.0",
     "prettier": "^2.8.7",
     "probot": "^12.2.4"
   },

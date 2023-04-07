@@ -4,12 +4,46 @@
 
 ## Setup
 
+### Quickstart
+
 ```sh
 # Install dependencies
 npm install
 
 # Run the bot
 npm start
+```
+
+### Local Development
+
+When developing locally you can use 1 of 2 methods to run the bot.
+1. Hot reload with nodemon
+1. Simulate a webhook event
+
+#### Hot reload with nodemon
+
+```sh
+# Install dependencies
+npm install
+
+# Run the bot with nodemon
+npm run dev
+```
+
+#### Simulate a webhook event
+
+Follow the instructions
+[here](https://probot.github.io/docs/simulating-webhooks) to setup a webhook on
+your local repository.  Then you can trigger the webhook event by running the
+following command. There is a folder `test/fixtures/live` that is ignored by git
+that you can use to store your webhook payloads.
+
+```sh
+# Install dependencies
+npm install
+
+# Simulate the webhook event
+npm run mock
 ```
 
 ## Docker
@@ -30,4 +64,4 @@ For more, check out the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
-[ISC](LICENSE) © 2023 Matthew Sevey
+[ISC](LICENSE) © 2023 Strange Loop Labs AG

@@ -14,6 +14,7 @@
   "scripts": {
     "start": "probot run ./index.js",
     "dev": "nodemon --exec 'probot run' ./index.js",
+    "mock": "probot receive -e issue_comment -p test/fixtures/live/issue_comment.created.json index.js",
     "lint": "prettier --check .",
     "fmt": "prettier --write .",
     "test": "jest"

@@ -9,7 +9,7 @@ const { parseAction, parseIssueNumbers } = require("./utils/parse");
 const { printJSON } = require("./utils/utils");
 
 // Queries
-const { getIssueProjects } = require("./graphql/projects");
+// const { getIssueProjects } = require("./graphql/projects");
 
 // Define actions
 const syncEpic = "syncEpic";
@@ -18,7 +18,7 @@ const syncEpic = "syncEpic";
 const actions = new Map();
 actions.set(
   syncEpic,
-  "syncEpic syncs an epic issue's labels, milestones, and projects to its linked issues."
+  "syncEpic syncs an epic issue's labels, milestones, and projects to its task list issues."
 );
 
 const botName = "celbot";
@@ -28,7 +28,6 @@ const botName = "celbot";
  * @param {import('probot').Probot} app
  */
 module.exports = (app) => {
-  // Your code here
   app.log.info("Yay, the app was loaded!");
 
   app.on("issue_comment.created", async (context) => {
@@ -102,6 +101,10 @@ async function handleSyncEpic(context) {
       await applyAttributes(context, issueNumber, labels, milestone);
     }
   }
+}
+
+function issueLabels(issue) {
+  return issue.data.labels.map((label) => label.name);
 }
 
 async function applyAttributes(context, issueId, labels, milestone) {

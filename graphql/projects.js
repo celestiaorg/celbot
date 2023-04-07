@@ -8,28 +8,33 @@ const {
   repoProjectsV2QueryString,
 } = require("./project_queries");
 
-exports.getIssueProjects = async function (context, issueID) {
-  const repoProjects = await fetchRepoProjects(context);
-  // console.log("repoProjects:", printJSON(repoProjects));
-  const orgProjects = await fetchOrgProjects(context);
-  // console.log("orgProjects:", printJSON(orgProjects));
+// getIssueProjects returns all projects that the given issue is in.
+async function getIssueProjects(context, issueID) {
+  const repoProjects = await getRepoProjects(context);
+  const orgProjects = await getOrgProjects(context);
 
   const allProjects = [...repoProjects, ...orgProjects];
   const issueProjects = [];
 
   for (const project of allProjects) {
+    // Ignore closed projects
     if (project.closed) continue;
-    if (await isIssueInProject(context, issueID, project.number)) {
-      issueProjects.push(project);
-    }
+    // Ignore projects already in the list. This can happen because projects
+    // will show up on both the repo and org level.
+    if (issueProjects.includes(project)) continue;
+    // Ignore projects that the issue is not in
+    if (!(await isIssueInProject(context, issueID, project.number))) continue;
+
+    // Add project to list
+    issueProjects.push(project);
   }
 
   return issueProjects;
-};
+}
 
 // getOrgProjects queries the projects for the given organization based on the
 // provided context from the Github graphql api.
-exports.getOrgProjects = async function (context) {
+async function getOrgProjects(context) {
   const owner = context.repo().owner;
   try {
     const result = await graphqlQuery(context, orgProjectsV2QueryString, {
@@ -41,11 +46,11 @@ exports.getOrgProjects = async function (context) {
     console.error("Error fetching projects:", error);
     return [];
   }
-};
+}
 
 // getRepoProjects queries the projects for the given repository based on the
 // provided context from the Github graphql api.
-exports.getRepoProjects = async function (context) {
+async function getRepoProjects(context) {
   const owner = context.repo().owner;
   const repo = context.repo().repo;
   try {
@@ -59,26 +64,21 @@ exports.getRepoProjects = async function (context) {
     console.error("Error fetching projects:", error);
     return [];
   }
-};
+}
 
 async function isIssueInProject(context, issueID, projectNumber) {
   const items = await getProjectItems(context, projectNumber);
 
-  // console.log(
-  //   `isIssueInProject found ${items.length} items for the project ${projectNumber}.`
-  // );
-  console.log(`views ${printJSON(items)}`);
-
   for (const item of items) {
-    if (item.node.type !== "ISSUE") continue;
-    if (item.node.id === issueID) return true;
+    if (item.type !== "ISSUE") continue;
+    if (item.id === issueID) return true;
   }
 
   return false;
 }
 
 // TODO: need pagination since projects can have more than 100 items
-exports.getProjectItems = async function (context, projectNumber) {
+async function getProjectItems(context, projectNumber) {
   const owner = context.repo().owner;
 
   try {
@@ -92,4 +92,12 @@ exports.getProjectItems = async function (context, projectNumber) {
     console.error("Error fetching views:", error);
     return [];
   }
+}
+
+module.exports = {
+  getIssueProjects,
+  getProjectItems,
+  getOrgProjects,
+  getRepoProjects,
+  isIssueInProject,
 };

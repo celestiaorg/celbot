@@ -1,3 +1,5 @@
+// REF: https://docs.github.com/en/graphql/overview/explorer
+
 const { parse, validate, buildClientSchema } = require("graphql");
 const introspectionResult = require("./introspection-result.json");
 
@@ -9,7 +11,6 @@ exports.isValid = async function (query) {
   let documentAST;
   try {
     documentAST = parse(query);
-    console.log("The query is valid");
   } catch (error) {
     console.error("Invalid GraphQL query:", error.message);
     return false;

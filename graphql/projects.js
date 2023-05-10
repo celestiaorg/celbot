@@ -32,15 +32,24 @@ async function getIssueProjects(context, issueID) {
   return issueProjects;
 }
 
-// getOrgProjects queries the projects for the given organization based on the
-// provided context from the Github graphql api.
+/**
+ * Queries the GitHub GraphQL API for an organization's projects. Returns an array
+ * of projects.
+ * @param {Context} context - Probot context object
+ * @returns {Array} An array of projects
+ */
 async function getOrgProjects(context) {
+  // Get the GitHub organization name from the context sent with the webhook
+  // event
   const owner = context.repo().owner;
+
+  // Query the GitHub GraphQL API to get all the projects in the organization
   try {
     const result = await graphqlQuery(context, orgProjectsV2QueryString, {
       owner,
     });
 
+    // The GraphQL query returns an array of projects
     return result.organization.projectsV2.nodes;
   } catch (error) {
     console.error("Error fetching projects:", error);

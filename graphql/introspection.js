@@ -2,10 +2,6 @@ const { graphql } = require("@octokit/graphql");
 const fs = require("fs");
 require("dotenv").config();
 
-const pat = process.env.GITHUB_PAT;
-
-// Use the PAT in your code
-
 // Replace with your personal access token
 const GITHUB_GRAPHQL_PAT = process.env.GITHUB_GRAPHQL_PAT;
 

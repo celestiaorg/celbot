@@ -79,7 +79,6 @@ describe("graphqlQuery method", () => {
     });
   });
 
-  // TODO: finish tests
   const supressErrorLogTests = [
     {
       description: "invalid context should throw an error and return undefined",

@@ -1,5 +1,6 @@
 // Import necessary modules
 const {
+  addIssueToProject,
   isIssueInProject,
   getIssueProjects,
   getOrgProjects,
@@ -7,6 +8,7 @@ const {
   getRepoProjects,
 } = require("./projects");
 const {
+  addProjectV2ItemByItemIDQueryString,
   orgProjectsV2QueryString,
   orgProjectV2ItemsQueryString,
   repoProjectsV2QueryString,
@@ -121,12 +123,41 @@ const mockContext = {
             projectsV2: repoProjectsV2,
           },
         };
+      } else if (query === addProjectV2ItemByItemIDQueryString) {
+        return {
+          clientMutationID: null,
+        };
       } else {
         throw new Error("Unexpected query");
       }
     }),
   },
 };
+
+describe("addIssueToProejct", () => {
+  describe("issue is not in project", () => {
+    it("should add the issue to the project", async () => {
+      // call addIssueToProject with mock data
+      await addIssueToProject(mockContext, item3.id, project1.id);
+      // Verify that the issue was added to the project
+      expect(mockContext.octokit.graphql).toHaveBeenCalledWith(
+        addProjectV2ItemByItemIDQueryString,
+        {
+          projectID: project1.id,
+          contentID: item3.id,
+        }
+      );
+    });
+  });
+  describe("error occurs", () => {
+    it("should throw an error", async () => {
+      // call addIssueToProject with mock data
+      await expect(
+        addIssueToProject(errorContext, commonItem1.id, project1.id)
+      ).rejects.toThrow("Fetch error");
+    });
+  });
+});
 
 describe("getIssueProjects", () => {
   describe("issue exists in a project", () => {

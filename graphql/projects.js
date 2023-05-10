@@ -3,10 +3,46 @@ const { graphqlQuery } = require("./query");
 
 // Import Queries
 const {
+  addProjectV2ItemByItemIDQueryString,
   orgProjectsV2QueryString,
   orgProjectV2ItemsQueryString,
   repoProjectsV2QueryString,
 } = require("./project_queries");
+
+// This function adds an issue to a project in GitHub. It takes
+// the issue ID and project number as parameters, and returns
+// the updated project.
+//
+// NOTE: This function does not check if the issue is already in the project.
+// The caller is responsible of only adding issues to projects that they are not
+// already in.
+/**
+ * Queries the GitHub GraphQL API for an organization's projects. Returns an array
+ * of projects.
+ * @param {Context} context - Probot context object
+ * @param {ID} issueID - Github global ID of the issue
+ * @param {ID} projectID - Github global ID of the project
+ * @returns {Object} The updated project
+ */
+async function addIssueToProject(context, issueID, projectID) {
+  try {
+    const result = await graphqlQuery(
+      context,
+      addProjectV2ItemByItemIDQueryString,
+      {
+        projectID,
+        contentID: issueID,
+      }
+    );
+    if (!result) {
+      throw new Error("null result from addProjectV2ItemByItemIDQueryString");
+    }
+    return result.clientMutationId;
+  } catch (error) {
+    console.error("Error adding issue to project:", error);
+    return null;
+  }
+}
 
 // getIssueProjects returns all projects that the given issue is in.
 async function getIssueProjects(context, issueID) {
@@ -104,6 +140,7 @@ async function getProjectItems(context, projectNumber) {
 }
 
 module.exports = {
+  addIssueToProject,
   getIssueProjects,
   getProjectItems,
   getOrgProjects,

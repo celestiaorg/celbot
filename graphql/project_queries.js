@@ -44,6 +44,11 @@ query ($owner: String!, $projectNumber: Int!) {
 				nodes {
 					id
 					type
+					content {
+						... on Issue {
+						  id
+						}
+					}
 				}
 			}
 		}

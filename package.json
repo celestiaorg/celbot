@@ -17,7 +17,7 @@
     "test": "npm run lint && jest",
     "start": "npm run test && probot run ./index.js",
     "dev": "npm run test && nodemon --exec 'probot run' ./index.js",
-    "mock": "npm run test && probot receive -e issue_comment -p test/fixtures/live/issue_comment.created.json index.js",
+    "mock": "probot receive -e issue_comment -p test/fixtures/live/issue_comment.created.json index.js",
     "introspection-data": "node graphql/introspection.js"
   },
   "dependencies": {

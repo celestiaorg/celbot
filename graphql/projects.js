@@ -57,7 +57,7 @@ async function getIssueProjects(context, issueID) {
     if (project.closed) continue;
     // Ignore projects already in the list. This can happen because projects
     // will show up on both the repo and org level.
-    if (issueProjects.includes(project)) continue;
+    if (issueProjects.some((proj) => proj.id === project.id)) continue;
     // Ignore projects that the issue is not in
     if (!(await isIssueInProject(context, issueID, project.number))) continue;
 
@@ -98,8 +98,6 @@ async function getOrgProjects(context) {
 async function getRepoProjects(context) {
   const owner = context.repo().owner;
   const repo = context.repo().repo;
-  console.log(typeof owner, typeof repo);
-  console.log(owner, repo);
   try {
     const result = await graphqlQuery(context, repoProjectsV2QueryString, {
       owner,
@@ -118,7 +116,7 @@ async function isIssueInProject(context, issueID, projectNumber) {
 
   for (const item of items) {
     if (item.type !== "ISSUE") continue;
-    if (item.id === issueID) return true;
+    if (item.content.id === issueID) return true;
   }
 
   return false;

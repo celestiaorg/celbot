@@ -9,7 +9,7 @@ const { parseAction, parseIssueNumbers } = require("./utils/parse");
 const { printJSON } = require("./utils/utils");
 
 // Queries
-const { getIssueProjects } = require("./graphql/projects");
+const { addIssueToProject, getIssueProjects } = require("./graphql/projects");
 
 // Define actions
 const syncEpic = "syncEpic";
@@ -55,13 +55,13 @@ Received issue comment event
     app.log.info(`Received ${action} action`);
     switch (action) {
       case syncEpic:
-        await handleSyncEpic(context);
+        await handleSyncEpic(app, context);
         break;
       default:
         app.log.info(`Received unknown action: ${action}`);
         app.log.info("Available actions are:");
         // Loop over the actions and print the available actions
-        actions.forEach((description, action) => {
+        actions.forEach((action, description) => {
           app.log.info(`  ${action}: ${description}`);
         });
 
@@ -76,9 +76,17 @@ Issue comment event complete
   });
 };
 
-async function handleSyncEpic(context) {
+// NOTE: this only works for subissues that are in the same repo as the epic
+// issue as the owner and repo are pulled from the context of the epic issue.
+async function handleSyncEpic(app, context) {
   // Get the issue details
-  const issue = await context.octokit.issues.get(context.issue());
+  let issue;
+  try {
+    issue = await context.octokit.issues.get(context.issue());
+  } catch (error) {
+    app.log.info(`Unable to get issue details: ${error}`);
+    return;
+  }
 
   // Extract the labels, milestone, and projects
   const labels = issue.data.labels.map((label) => label.name);
@@ -87,53 +95,90 @@ async function handleSyncEpic(context) {
   // Get projects related to the repository
   //
   // TODO: need to Debug, queries are running but no projects are returning
-  const projects = await getIssueProjects(context, issue.data.id);
+  let projects;
+  try {
+    projects = await getIssueProjects(context, issue.data.node_id);
+  } catch (error) {
+    app.log.info(`Unable to get projects: ${error}`);
+    return;
+  }
 
   // Extract the issue numbers from the task list
   const issueNumbers = parseIssueNumbers(issue.data.body);
   console.log(`handleSyncEpic extracted the following information:
   labels: ${labels}
   milestone: ${milestone}
-  projects: ${projects}
+  projects: ${printJSON(projects)}
   issueNumbers: ${issueNumbers}
   `);
-  if (issueNumbers) {
-    for (const issueNumber of issueNumbers) {
-      // Apply the labels, milestone, and projects to the related issues
-      await applyAttributes(context, issueNumber, labels, milestone);
+  if (!issueNumbers) {
+    app.log.info("Now issue numbers found in the epic issue body");
+    return;
+  }
+
+  // Apply the labels, milestone, and projects to the related issues
+  for (const issueNumber of issueNumbers) {
+    try {
+      await applyAttributes(
+        app,
+        context,
+        issueNumber,
+        labels,
+        milestone,
+        projects
+      );
+    } catch (error) {
+      app.log.info(
+        `Unable to apply attributes for issue #${issueNumber}: ${error}`
+      );
     }
   }
 }
 
-async function applyAttributes(context, issueId, labels, milestone) {
+async function applyAttributes(
+  app,
+  context,
+  issueNumber,
+  labels,
+  milestone,
+  projects
+) {
   // Apply the labels
   if (labels.length > 0) {
+    app.log.info(`Applying labels: ${labels}`);
     await context.octokit.issues.addLabels(
-      context.issue({ issue_number: issueId, labels })
+      context.issue({ issue_number: issueNumber, labels })
     );
+  } else {
+    app.log.info("No labels to apply");
   }
 
   // Apply the milestone
   if (milestone) {
+    app.log.info(`Applying milestone: ${milestone}`);
     await context.octokit.issues.update(
-      context.issue({ issue_number: issueId, milestone })
+      context.issue({ issue_number: issueNumber, milestone })
     );
+  } else {
+    app.log.info("No milestone to apply");
   }
 
-  // // Apply the projects
-  // for (const project of projects.data) {
-  //   // Get the project columns
-  //   const columns = await context.octokit.projects.listColumns({
-  //     project_id: project.id,
-  //   });
+  // Get the issue for the node_id
+  const issue = await context.octokit.rest.issues.get({
+    owner: context.repo().owner,
+    repo: context.repo().repo,
+    issue_number: issueNumber,
+  });
 
-  //   // Add the issue to the first column of the project
-  //   if (columns.data.length > 0) {
-  //     await context.octokit.projects.createCard({
-  //       column_id: columns.data[0].id,
-  //       content_id: issueId,
-  //       content_type: "Issue",
-  //     });
-  //   }
-  // }
+  // Apply the projects
+  for (const project of projects) {
+    app.log.info(`Applying project: ${project.name}`);
+    try {
+      await addIssueToProject(context, issue.data.node_id, project.id);
+    } catch (error) {
+      app.log.error(
+        `Error adding issue #${issueNumber} to project '${project.title}': ${error}`
+      );
+    }
+  }
 }

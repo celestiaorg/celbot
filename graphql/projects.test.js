@@ -51,20 +51,28 @@ const orgProjectsV2 = {
 // issue and the other should not be an issue. One issue item should exist in
 // all 3 projects.
 const commonItem1 = {
-  id: "1",
+  id: "p1",
   type: "ISSUE",
+  content: {
+    id: "1",
+  },
 };
 const item2 = {
-  id: "2",
+  id: "p2",
   type: "NOTISSUE",
+  content: {},
 };
 const item3 = {
-  id: "3",
+  id: "p3",
   type: "ISSUE",
+  content: {
+    id: "3",
+  },
 };
 const item4 = {
-  id: "4",
+  id: "p4",
   type: "NOTISSUE",
+  content: {},
 };
 const project1Items = { nodes: [commonItem1, item2] };
 const project2Items = { nodes: [commonItem1, item3] };
@@ -175,7 +183,10 @@ describe("getIssueProjects", () => {
   describe("issue exists in a project", () => {
     it("should return an array of open projects that the issue is in", async () => {
       // call getIssuesProjects with mock data
-      const projects = await getIssueProjects(mockContext, commonItem1.id);
+      const projects = await getIssueProjects(
+        mockContext,
+        commonItem1.content.id
+      );
       // Verify only open projects are returned
       projects.forEach((project) => {
         expect(project.closed).toBe(false);
@@ -210,7 +221,11 @@ describe("getIssueProjects", () => {
 describe("getIssueProjects", () => {
   it("should return true if issue is in project", async () => {
     expect(
-      await isIssueInProject(mockContext, commonItem1.id, project1.number)
+      await isIssueInProject(
+        mockContext,
+        commonItem1.content.id,
+        project1.number
+      )
     ).toBe(true);
   });
   it("should return false if item in project is not an issue", async () => {
@@ -219,9 +234,9 @@ describe("getIssueProjects", () => {
     );
   });
   it("should return false if issue is not in project", async () => {
-    expect(await isIssueInProject(mockContext, "1234", project1.number)).toBe(
-      false
-    );
+    expect(
+      await isIssueInProject(mockContext, item3.content.id, project1.number)
+    ).toBe(false);
   });
 });
 

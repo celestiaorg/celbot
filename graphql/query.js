@@ -31,6 +31,8 @@ exports.graphqlQuery = async function (context, query, ...variables) {
   // Check if the query is valid
   if (!(await exports.isValid(query))) return;
 
+  console.log("params", Object.assign({}, ...variables));
+
   // Execute the query
   try {
     const result = await context.octokit.graphql(

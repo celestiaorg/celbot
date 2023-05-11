@@ -7,17 +7,15 @@ mutation ($contentId: ID!, $projectId: ID!) {
 `;
 
 const orgProjectsV2QueryString = `
-query ($owner: String!, $projectNumber: Int!) {
+query ($owner: String!) {
   organization(login: $owner) {
-    projectV2(number: $projectNumber) {
-	items(last: 100) {
-		edges {
-			node {
-				id
-				type
-			}
-		}
-	}
+    projectsV2(first: 100) {
+      nodes {
+	id
+	title
+	closed
+	number
+      }
     }
   }
 }

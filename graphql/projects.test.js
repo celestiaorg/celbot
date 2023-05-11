@@ -97,7 +97,7 @@ const mockContext = {
         };
       } else if (query === orgProjectV2ItemsQueryString) {
         let items;
-        switch (variables.number) {
+        switch (variables.projectNumber) {
           case 1:
             items = project1Items;
             break;
@@ -108,6 +108,7 @@ const mockContext = {
             items = project3Items;
             break;
           default:
+            console.log(variables.number);
             throw new Error("Unexpected query");
         }
         return {
@@ -149,14 +150,25 @@ describe("addIssueToProejct", () => {
       );
     });
   });
-  describe("error occurs", () => {
-    it("should throw an error", async () => {
-      // call addIssueToProject with mock data
-      await expect(
-        addIssueToProject(errorContext, commonItem1.id, project1.id)
-      ).rejects.toThrow("Fetch error");
-    });
-  });
+  // For tests were we are intentionally expecting an error, we can suppress the
+  // console.error output
+  const supressErrorLogTests = [
+    {
+      description: "should return null when an error occurs",
+      func: async () => {
+        const response = await addIssueToProject(
+          errorContext,
+          commonItem1.id,
+          project1.id
+        );
+        expect(response).toEqual(null);
+      },
+    },
+  ];
+  describeWithErrorsLogSurpressed(
+    "with suppressed console.error",
+    supressErrorLogTests
+  );
 });
 
 describe("getIssueProjects", () => {
@@ -256,8 +268,8 @@ describe("getProjectItems", () => {
     expect(mockContext.octokit.graphql).toHaveBeenCalledWith(
       orgProjectV2ItemsQueryString,
       {
-        owner: owner,
-        number: projectNumber,
+        owner,
+        projectNumber,
       }
     );
   });
@@ -292,7 +304,7 @@ describe("getRepoProjects", () => {
       repoProjectsV2QueryString,
       {
         owner,
-        name: repo,
+        repo,
       }
     );
   });

@@ -98,10 +98,12 @@ async function getOrgProjects(context) {
 async function getRepoProjects(context) {
   const owner = context.repo().owner;
   const repo = context.repo().repo;
+  console.log(typeof owner, typeof repo);
+  console.log(owner, repo);
   try {
     const result = await graphqlQuery(context, repoProjectsV2QueryString, {
       owner,
-      name: repo,
+      repo,
     });
 
     return result.repository.projectsV2.nodes;
@@ -129,7 +131,7 @@ async function getProjectItems(context, projectNumber) {
   try {
     const result = await graphqlQuery(context, orgProjectV2ItemsQueryString, {
       owner,
-      number: projectNumber,
+      projectNumber,
     });
 
     return result.organization.projectV2.items.nodes;

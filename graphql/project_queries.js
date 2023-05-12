@@ -1,10 +1,12 @@
-const addProjectV2ItemByItemIDQueryString = `
-mutation ($contentId: ID!, $projectId: ID!) {
+function addProjectV2ItemByItemIDQuery(projectID, contentID) {
+  return `
+mutation ($contentId: ID = "${contentID}", $projectId: ID = "${projectID}") {
 	addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
 	  clientMutationId
 	}
 }
 `;
+}
 
 const orgProjectsV2QueryString = `
 query ($owner: String!) {
@@ -57,7 +59,7 @@ query ($owner: String!, $projectNumber: Int!) {
 `;
 
 module.exports = {
-  addProjectV2ItemByItemIDQueryString,
+  addProjectV2ItemByItemIDQuery,
   orgProjectsV2QueryString,
   orgProjectV2ItemsQueryString,
   repoProjectsV2QueryString,

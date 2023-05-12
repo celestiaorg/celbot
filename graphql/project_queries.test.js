@@ -1,6 +1,6 @@
 const { isValid } = require("./query");
 const {
-  addProjectV2ItemByItemIDQueryString,
+  addProjectV2ItemByItemIDQuery,
   orgProjectsV2QueryString,
   orgProjectV2ItemsQueryString,
   repoProjectsV2QueryString,
@@ -17,7 +17,7 @@ describe("Verify Project Queries are Valid", function () {
 
   validTest(
     "expect addProjectV2ItemByItemIDQueryString to be valid",
-    addProjectV2ItemByItemIDQueryString
+    addProjectV2ItemByItemIDQuery("projectID", "issueID")
   );
   validTest("expect orgProjectsV2 to be valid", orgProjectsV2QueryString);
   validTest(

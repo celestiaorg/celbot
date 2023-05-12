@@ -1,8 +1,8 @@
-const { graphqlQuery, graphqlAddProjectV2ItemByID } = require("./query");
+const { graphqlQuery } = require("./query");
 
 // Import Queries
 const {
-  addProjectV2ItemByItemIDQueryString,
+  addProjectV2ItemByItemIDQuery,
   orgProjectsV2QueryString,
   orgProjectV2ItemsQueryString,
   repoProjectsV2QueryString,
@@ -25,11 +25,9 @@ const {
  */
 async function addIssueToProject(context, issueID, projectID) {
   try {
-    const result = await graphqlAddProjectV2ItemByID(
+    const result = await graphqlQuery(
       context,
-      addProjectV2ItemByItemIDQueryString,
-      projectID,
-      issueID
+      addProjectV2ItemByItemIDQuery(projectID, issueID)
     );
     if (!result) {
       throw new Error("null result from addProjectV2ItemByItemIDQueryString");

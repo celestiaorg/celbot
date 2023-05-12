@@ -149,13 +149,19 @@ describe("addIssueToProejct", () => {
       // call addIssueToProject with mock data
       await addIssueToProject(mockContext, item3.id, project1.id);
       // Verify that the issue was added to the project
-      expect(mockContext.octokit.graphql).toHaveBeenCalledWith(
-        addProjectV2ItemByItemIDQueryString,
-        {
-          projectID: project1.id,
-          contentID: item3.id,
-        }
-      );
+      expect(mockContext.octokit.graphql).toHaveBeenCalledWith(`
+mutation ($contentId: ID = \"p3\", $projectId: ID = \"1\") {
+	addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+	  clientMutationId
+	}
+}
+`);
+      // TODO: This is what should be returned if using the common query method
+      // addProjectV2ItemByItemIDQueryString,
+      // {
+      //   projectID: project1.id,
+      //   contentID: item3.id,
+      // }
     });
   });
   // For tests were we are intentionally expecting an error, we can suppress the

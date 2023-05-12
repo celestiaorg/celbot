@@ -93,8 +93,6 @@ async function handleSyncEpic(app, context) {
   const milestone = issue.data.milestone ? issue.data.milestone.number : null;
 
   // Get projects related to the repository
-  //
-  // TODO: need to Debug, queries are running but no projects are returning
   let projects;
   try {
     projects = await getIssueProjects(context, issue.data.node_id);

@@ -1,5 +1,7 @@
 # celbot
 
+[![CI](https://github.com/celestiaorg/celbot/actions/workflows/ci.yml/badge.svg)](https://github.com/celestiaorg/celbot/actions/workflows/ci.yml)
+
 > A GitHub App built with [Probot](https://github.com/probot/probot) that A github bot for enforcing Matt&#x27;s wishes upon the developers at celestia
 
 ## Setup

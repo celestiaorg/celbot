@@ -105,7 +105,7 @@ async function handleSyncEpic(app, context) {
 
   // Extract the issue numbers from the task list
   const issueNumbers = parseIssueNumbers(issue.data.body);
-  console.log(`handleSyncEpic extracted the following information:
+  app.log.info(`handleSyncEpic extracted the following information:
   labels: ${labels}
   milestone: ${milestone}
   projects: ${printJSON(projects)}
@@ -172,7 +172,7 @@ async function applyAttributes(
 
   // Apply the projects
   for (const project of projects) {
-    app.log.info(`Applying project: ${project.name}`);
+    app.log.info(`Applying project: ${project.title}`);
     try {
       await addIssueToProject(context, issue.data.node_id, project.id);
     } catch (error) {

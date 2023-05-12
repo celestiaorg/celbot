@@ -1,5 +1,4 @@
-const { printJSON } = require("../utils/utils");
-const { graphqlQuery } = require("./query");
+const { graphqlQuery, graphqlAddProjectV2ItemByID } = require("./query");
 
 // Import Queries
 const {
@@ -26,13 +25,11 @@ const {
  */
 async function addIssueToProject(context, issueID, projectID) {
   try {
-    const result = await graphqlQuery(
+    const result = await graphqlAddProjectV2ItemByID(
       context,
       addProjectV2ItemByItemIDQueryString,
-      {
-        projectID,
-        contentID: issueID,
-      }
+      projectID,
+      issueID
     );
     if (!result) {
       throw new Error("null result from addProjectV2ItemByItemIDQueryString");

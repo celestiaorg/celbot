@@ -31,14 +31,48 @@ exports.graphqlQuery = async function (context, query, ...variables) {
   // Check if the query is valid
   if (!(await exports.isValid(query))) return;
 
-  console.log("params", Object.assign({}, ...variables));
-
   // Execute the query
   try {
     const result = await context.octokit.graphql(
       query,
       Object.assign({}, ...variables)
     );
+
+    return result;
+  } catch (error) {
+    console.error(
+      `Error fetching query
+    ${query}
+    
+    Error:
+    ${error}
+    `
+    );
+    return;
+  }
+};
+
+// TODO: this is a separate method because I was unsure how to get around the ID
+// type error in the common method. Even though the documentation says that an
+// input of a string should statisfy the ID type, it doesn't seem to work.
+exports.graphqlAddProjectV2ItemByID = async function (
+  context,
+  query,
+  projectID,
+  contentID
+) {
+  // Check if the query is valid
+  if (!(await exports.isValid(query))) return;
+
+  // Execute the query
+  try {
+    const result = await context.octokit.graphql(`
+mutation ($contentId: ID = "${contentID}", $projectId: ID = "${projectID}") {
+	addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+	  clientMutationId
+	}
+}
+`);
 
     return result;
   } catch (error) {

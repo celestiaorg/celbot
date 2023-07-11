@@ -21,7 +21,7 @@
     "introspection-data": "node graphql/introspection.js"
   },
   "dependencies": {
-    "@octokit/graphql": "^5.0.5",
+    "@octokit/graphql": "^5.0.6",
     "@octokit/rest": "^19.0.7",
     "dotenv": "^16.0.3",
     "graphql": "^16.6.0",

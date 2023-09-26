@@ -24,7 +24,7 @@
     "@octokit/graphql": "^5.0.5",
     "@octokit/rest": "^19.0.7",
     "dotenv": "^16.0.3",
-    "graphql": "^16.6.0",
+    "graphql": "^16.8.1",
     "prettier": "^2.8.7",
     "probot": "^12.3.1"
   },
